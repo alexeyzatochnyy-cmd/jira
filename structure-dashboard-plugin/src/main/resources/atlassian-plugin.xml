@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<atlassian-plugin key="com.company.jira.structure-dashboard-plugin"
+                  name="Structure Analytics Dashboard"
+                  plugins-version="2">
+
+  <plugin-info>
+    <description>Beautiful multi-widget analytics dashboard powered by Structure REST API</description>
+    <version>1.0.0</version>
+    <vendor name="Your Company" url="https://your-company.com"/>
+    <param name="plugin-icon">images/plugin-icon.png</param>
+    <param name="plugin-logo">images/plugin-logo.png</param>
+    <param name="atlassian-licensing-enabled">false</param>
+  </plugin-info>
+
+  <!-- ===== SERVLET: главная страница дашборда ===== -->
+  <servlet key="structure-dashboard-servlet"
+           name="Structure Dashboard"
+           class="com.company.jira.structuredash.servlet.DashboardServlet">
+    <url-pattern>/structure-dashboard</url-pattern>
+    <url-pattern>/structure-dashboard/*</url-pattern>
+  </servlet>
+
+  <!-- ===== REST API: прокси к Structure + layout ===== -->
+  <rest key="structure-dashboard-rest"
+        name="Structure Dashboard REST API"
+        path="/structuredash"
+        version="1.0">
+    <description>REST endpoints: Structure proxy, layout CRUD, aggregates</description>
+  </rest>
+
+  <!-- ===== Веб-ресурсы ===== -->
+  <web-resource key="structure-dashboard-resources" name="Structure Dashboard Resources">
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <dependency>com.atlassian.auiplugin:aui-core</dependency>
+
+    <!-- ECharts 5 (bundled, не CDN — для offline инсталляций) -->
+    <resource type="download" name="echarts.min.js"
+              location="/js/echarts.min.js"/>
+
+    <!-- Sortable.js для drag&drop -->
+    <resource type="download" name="sortable.min.js"
+              location="/js/sortable.min.js"/>
+
+    <!-- Основной JS дашборда -->
+    <resource type="download" name="dashboard.js"
+              location="/js/dashboard.js"/>
+
+    <!-- CSS -->
+    <resource type="download" name="dashboard.css"
+              location="/css/dashboard.css"/>
+
+    <context>structure-dashboard</context>
+  </web-resource>
+
+  <!-- ===== Ссылка в топ-навигации Jira ===== -->
+  <web-item key="structure-dashboard-nav-link"
+            name="Structure Dashboard"
+            section="system.top.navigation.bar"
+            weight="150">
+    <label key="structure.dashboard.nav.label">Structure Dashboard</label>
+    <link>/plugins/servlet/structure-dashboard</link>
+    <icon height="16" width="16">
+      <link>/download/resources/com.company.jira.structure-dashboard-plugin/images/plugin-icon.png</link>
+    </icon>
+  </web-item>
+
+  <!-- ===== Ссылка в меню Apps (Jira header) ===== -->
+  <web-item key="structure-dashboard-apps-link"
+            name="Structure Analytics"
+            section="com.atlassian.jira.jira-header-plugin:application-navigator-section"
+            weight="200">
+    <label>Structure Analytics</label>
+    <link>/plugins/servlet/structure-dashboard</link>
+  </web-item>
+
+  <!-- ===== Active Objects (хранение конфигурации layout) ===== -->
+  <ao key="structure-dashboard-ao">
+    <description>Active Objects for dashboard layout persistence</description>
+    <entity>com.company.jira.structuredash.ao.DashboardLayout</entity>
+    <entity>com.company.jira.structuredash.ao.WidgetConfig</entity>
+  </ao>
+
+  <!-- ===== i18n ===== -->
+  <resource type="i18n" name="i18n" location="i18n/structure-dashboard"/>
+
+</atlassian-plugin>

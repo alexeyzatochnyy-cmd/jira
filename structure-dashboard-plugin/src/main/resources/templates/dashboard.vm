@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Structure Analytics Dashboard</title>
+
+  ## AUI (Atlassian UI) — уже подключён Jira, используем их CSS-переменные
+  <link rel="stylesheet" href="$pluginResourceUrl/dashboard.css"/>
+
+  <style>
+    /* Jira-specific page layout overrides */
+    #page { padding: 0; }
+    #content { padding: 0; margin: 0; }
+  </style>
+</head>
+<body class="aui-page-full">
+
+<div id="sd-app" data-base-url="$baseUrl" data-user-key="$user.key">
+
+  <!-- HEADER -->
+  <div id="sd-header">
+    <div class="sd-header-left">
+      <div class="sd-logo">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="2" y="2" width="7" height="7" rx="1.5" fill="#0052cc"/>
+          <rect x="11" y="2" width="7" height="7" rx="1.5" fill="#0052cc" opacity="0.6"/>
+          <rect x="2" y="11" width="7" height="7" rx="1.5" fill="#0052cc" opacity="0.6"/>
+          <rect x="11" y="11" width="3" height="7" rx="1.5" fill="#0052cc" opacity="0.3"/>
+          <rect x="15" y="11" width="3" height="7" rx="1.5" fill="#0052cc" opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="sd-dashboard-selector">
+        <select id="sd-dashboard-select">
+          <option value="">— выберите дашборд —</option>
+        </select>
+      </div>
+    </div>
+    <div class="sd-header-center">
+      <span id="sd-dashboard-name" class="sd-title">Structure Analytics</span>
+    </div>
+    <div class="sd-header-right">
+      <button id="sd-btn-refresh" class="sd-btn sd-btn-ghost" title="Обновить данные">
+        <span class="aui-icon aui-icon-small aui-iconfont-refresh"></span>
+      </button>
+      <button id="sd-btn-edit" class="sd-btn sd-btn-ghost" title="Редактировать layout">
+        <span class="aui-icon aui-icon-small aui-iconfont-edit"></span>
+        <span>Edit</span>
+      </button>
+      <button id="sd-btn-add-widget" class="sd-btn sd-btn-primary" style="display:none">
+        <span class="aui-icon aui-icon-small aui-iconfont-add"></span>
+        <span>Add widget</span>
+      </button>
+      <button id="sd-btn-new-dashboard" class="sd-btn sd-btn-ghost" title="Новый дашборд">
+        <span>+ New</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TOOLBAR (видна в режиме редактирования) -->
+  <div id="sd-edit-toolbar" class="sd-edit-toolbar sd-hidden">
+    <span class="sd-edit-hint">
+      <span class="aui-icon aui-icon-small aui-iconfont-drag-vertical"></span>
+      Drag to reorder &nbsp;·&nbsp;
+      <span class="aui-icon aui-icon-small aui-iconfont-arrows-left"></span>
+      Click <b>cols</b> to resize
+    </span>
+    <div class="sd-edit-actions">
+      <button id="sd-btn-save-layout" class="sd-btn sd-btn-primary">Save layout</button>
+      <button id="sd-btn-cancel-edit" class="sd-btn sd-btn-ghost">Cancel</button>
+    </div>
+  </div>
+
+  <!-- GRID: сюда рендерятся виджеты -->
+  <div id="sd-grid" class="sd-grid"></div>
+
+  <!-- EMPTY STATE -->
+  <div id="sd-empty" class="sd-empty sd-hidden">
+    <div class="sd-empty-icon">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+        <rect x="8" y="8" width="22" height="22" rx="4" fill="#dfe1e6"/>
+        <rect x="34" y="8" width="22" height="22" rx="4" fill="#dfe1e6"/>
+        <rect x="8" y="34" width="48" height="22" rx="4" fill="#dfe1e6"/>
+      </svg>
+    </div>
+    <p class="sd-empty-title">Нет виджетов</p>
+    <p class="sd-empty-desc">Нажмите <strong>+ Add widget</strong> чтобы добавить первый виджет</p>
+    <button id="sd-empty-add" class="sd-btn sd-btn-primary">+ Add widget</button>
+  </div>
+
+</div>
+
+<!-- MODAL: добавить / редактировать виджет -->
+<div id="sd-modal-overlay" class="sd-modal-overlay sd-hidden">
+  <div id="sd-modal" class="sd-modal">
+    <div class="sd-modal-header">
+      <h3 id="sd-modal-title">Add widget</h3>
+      <button id="sd-modal-close" class="sd-btn sd-btn-ghost sd-btn-icon">✕</button>
+    </div>
+    <div class="sd-modal-body">
+
+      <div class="sd-form-row">
+        <label>Widget type</label>
+        <div class="sd-type-grid" id="sd-type-grid">
+          <div class="sd-type-card" data-type="kpi">
+            <div class="sd-type-icon">📊</div>
+            <div class="sd-type-label">KPI Card</div>
+            <div class="sd-type-desc">One metric with delta</div>
+          </div>
+          <div class="sd-type-card" data-type="epic-progress">
+            <div class="sd-type-icon">🎯</div>
+            <div class="sd-type-label">Epic Progress</div>
+            <div class="sd-type-desc">Progress bars by epic</div>
+          </div>
+          <div class="sd-type-card" data-type="aggregates-bar">
+            <div class="sd-type-icon">📈</div>
+            <div class="sd-type-label">Aggregates Chart</div>
+            <div class="sd-type-desc">Bar/column by formula</div>
+          </div>
+          <div class="sd-type-card" data-type="donut">
+            <div class="sd-type-icon">🍩</div>
+            <div class="sd-type-label">Donut</div>
+            <div class="sd-type-desc">Distribution by status</div>
+          </div>
+          <div class="sd-type-card" data-type="table">
+            <div class="sd-type-icon">📋</div>
+            <div class="sd-type-label">Issues Table</div>
+            <div class="sd-type-desc">Top N with formulas</div>
+          </div>
+          <div class="sd-type-card" data-type="progress-ring">
+            <div class="sd-type-icon">⭕</div>
+            <div class="sd-type-label">Progress Ring</div>
+            <div class="sd-type-desc">Overall % done</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sd-form-row">
+        <label for="sd-widget-title">Title</label>
+        <input type="text" id="sd-widget-title" class="sd-input" placeholder="Widget title"/>
+      </div>
+
+      <div class="sd-form-row">
+        <label for="sd-widget-structure">Structure</label>
+        <select id="sd-widget-structure" class="sd-input">
+          <option value="">Loading structures...</option>
+        </select>
+      </div>
+
+      <div class="sd-form-row">
+        <label for="sd-widget-columns">Column keys (comma-separated)</label>
+        <input type="text" id="sd-widget-columns" class="sd-input"
+               placeholder="progress, story_points, estimated_hours"/>
+        <small class="sd-hint">Ключи колонок из Structure (видны в URL при редактировании колонки)</small>
+      </div>
+
+      <div class="sd-form-row">
+        <label>Width</label>
+        <div class="sd-cols-picker" id="sd-cols-picker">
+          <button class="sd-col-btn" data-cols="3">3 col<br/><small>narrow</small></button>
+          <button class="sd-col-btn sd-col-btn-active" data-cols="4">4 col<br/><small>small</small></button>
+          <button class="sd-col-btn" data-cols="6">6 col<br/><small>half</small></button>
+          <button class="sd-col-btn" data-cols="8">8 col<br/><small>wide</small></button>
+          <button class="sd-col-btn" data-cols="12">12 col<br/><small>full</small></button>
+        </div>
+      </div>
+
+    </div>
+    <div class="sd-modal-footer">
+      <button id="sd-modal-cancel" class="sd-btn sd-btn-ghost">Cancel</button>
+      <button id="sd-modal-save" class="sd-btn sd-btn-primary">Add widget</button>
+    </div>
+  </div>
+</div>
+
+<!-- JS -->
+<script src="$pluginResourceUrl/echarts.min.js"></script>
+<script src="$pluginResourceUrl/sortable.min.js"></script>
+<script src="$pluginResourceUrl/dashboard.js"></script>
+<script>
+  // Инициализация после загрузки DOM
+  window.SD_CONFIG = {
+    baseUrl: '$baseUrl',
+    restBase: '$baseUrl/rest/structuredash/1.0',
+    initialDashboardId: '$!dashboardId'
+  };
+</script>
+
+</body>
+</html>

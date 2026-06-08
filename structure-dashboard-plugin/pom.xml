@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+           http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.company.jira</groupId>
+  <artifactId>structure-dashboard-plugin</artifactId>
+  <version>1.0.0</version>
+  <packaging>bundle</packaging>
+
+  <name>Structure Analytics Dashboard</name>
+  <description>Analytics dashboard powered by Structure REST API for Jira Server 8.20.x</description>
+
+  <properties>
+    <jira.version>8.20.30</jira.version>
+    <atlassian.spring.scanner.version>2.2.1</atlassian.spring.scanner.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <stubs.jar>/tmp/stubs/atlassian-stubs.jar</stubs.jar>
+  </properties>
+
+  <dependencies>
+    <!-- Atlassian stubs (system scope, compile only, not bundled) -->
+    <dependency>
+      <groupId>com.atlassian</groupId>
+      <artifactId>atlassian-stubs</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${stubs.jar}</systemPath>
+    </dependency>
+
+    <!-- Apache HttpClient — provided by Jira -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5.13</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Jackson -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.13.4</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Servlet API -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.1.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- JAX-RS -->
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>jsr311-api</artifactId>
+      <version>1.1.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Spring (provided by Jira) -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <version>5.3.20</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>5.3.20</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- SLF4J (provided by Jira) -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.36</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Test -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>4.11.0</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <source>11</source>
+          <target>11</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>5.1.9</version>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>com.company.jira.structure-dashboard-plugin</Bundle-SymbolicName>
+            <Bundle-Name>Structure Analytics Dashboard</Bundle-Name>
+            <Bundle-Version>1.0.0</Bundle-Version>
+            <Atlassian-Plugin-Key>com.company.jira.structure-dashboard-plugin</Atlassian-Plugin-Key>
+            <Import-Package>
+              com.atlassian.jira.*;version="0.0.0",
+              com.atlassian.activeobjects.*;version="0.0.0",
+              com.atlassian.templaterenderer.*;version="0.0.0",
+              com.atlassian.plugin.spring.scanner.*;version="0.0.0",
+              com.atlassian.sal.*;version="0.0.0",
+              org.apache.http.*;version="0.0.0",
+              com.fasterxml.jackson.*;version="0.0.0",
+              org.springframework.*;version="0.0.0",
+              javax.servlet.*;version="0.0.0",
+              javax.ws.rs.*;version="0.0.0",
+              net.java.ao.*;version="0.0.0",
+              org.slf4j.*;version="0.0.0",
+              *;version="0.0.0"
+            </Import-Package>
+            <Export-Package>com.company.jira.structuredash.*</Export-Package>
+            <Spring-Context>*</Spring-Context>
+            <Include-Resource>
+              {maven-resources},
+              src/main/resources/
+            </Include-Resource>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
