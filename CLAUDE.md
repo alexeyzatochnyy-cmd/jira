@@ -1,7 +1,7 @@
 # Structure Analytics Dashboard Plugin — контекст проекта
 
 ## Статус
-✅ **JAR собран успешно** — `target/structure-dashboard-plugin-1.0.0.jar` (384 KB)
+✅ **JAR собран успешно** — [target/structure-dashboard-plugin-1.0.0.jar](https://github.com/alexeyzatochnyy-cmd/jira/blob/claude/quirky-turing-SxrDM/target/structure-dashboard-plugin-1.0.0.jar) (384 KB)
 
 ## Стек
 - **Jira Server 8.20.30** (не Cloud, не DC)
@@ -30,52 +30,52 @@
 
 ```
 structure-dashboard-plugin/
-├── pom.xml                          ← bundle packaging, Felix plugin, Maven Central
-├── build.sh                         ← сборка одной командой (./build.sh)
-├── src/main/
-│   ├── java/com/company/jira/structuredash/
-│   │   ├── ao/
-│   │   │   ├── DashboardLayout.java     ← AO entity: SD_DASHBOARD (dashboardId, name, ownerKey, sharedWith)
-│   │   │   └── WidgetConfig.java        ← AO entity: SD_WIDGET (widgetId, dashboardId, type, cols, widgetOrder, structureId, columnKeys JSON, options JSON)
-│   │   ├── model/
-│   │   │   ├── StructureInfo.java       ← {id, name, description}
-│   │   │   ├── ForestRow.java           ← {issueId, depth, childCount}
-│   │   │   ├── ForestResponse.java      ← список issueIds + rows; getTopLevelIds(), getChildrenOf(id)
-│   │   │   ├── StructureAggregates.java ← {totalIssues, overallProgress, sums{col→double}, counts{col→int}}
-│   │   │   ├── EpicProgressItem.java    ← {issueId, progress, childCount, columnValues{key→Object}}
-│   │   │   ├── WidgetConfigDto.java     ← {id, type, title, cols, order, structureId, columnKeys[], options{}}
-│   │   │   ├── DashboardLayoutDto.java  ← {id, name, ownerKey, widgets[]}
-│   │   │   └── ApiError.java            ← {status, message}
-│   │   ├── service/
-│   │   │   └── StructureApiService.java ← вся работа с Structure REST API (Apache HttpClient)
-│   │   ├── rest/
-│   │   │   └── DashboardResource.java   ← JAX-RS /rest/structuredash/1.0/...
-│   │   └── servlet/
-│   │       └── DashboardServlet.java    ← рендерит dashboard.vm, проверяет auth
-│   └── resources/
-│       ├── atlassian-plugin.xml         ← дескриптор: servlet, rest, web-resource, web-item, ao, i18n
-│       ├── templates/dashboard.vm       ← HTML-оболочка SPA
-│       ├── js/
-│       │   ├── echarts.min.js           ← ECharts 5.4.3 (из npm)
-│       │   ├── sortable.min.js          ← Sortable.js 1.15.0 (из npm)
-│       │   └── dashboard.js             ← SPA: рендер виджетов, API, drag&drop, layout
-│       ├── css/dashboard.css            ← стили (ADS цвета, 12-col grid, виджеты, модалка)
-│       └── i18n/structure-dashboard.properties
 ```
+
+`├── pom.xml                          ← bundle packaging, Felix plugin, Maven Central`
+`├── build.sh                         ← сборка одной командой (./build.sh)`
+`├── src/main/`
+`│   ├── java/com/company/jira/structuredash/`
+`│   │   ├── ao/`
+`│   │   │   ├── DashboardLayout.java     ← AO entity: SD_DASHBOARD (dashboardId, name, ownerKey, sharedWith)`
+`│   │   │   └── WidgetConfig.java        ← AO entity: SD_WIDGET (widgetId, dashboardId, type, cols, widgetOrder, structureId, columnKeys JSON, options JSON)`
+`│   │   ├── model/`
+`│   │   │   ├── StructureInfo.java       ← {id, name, description}`
+`│   │   │   ├── ForestRow.java           ← {issueId, depth, childCount}`
+`│   │   │   ├── ForestResponse.java      ← список issueIds + rows; getTopLevelIds(), getChildrenOf(id)`
+`│   │   │   ├── StructureAggregates.java ← {totalIssues, overallProgress, sums{col→double}, counts{col→int}}`
+`│   │   │   ├── EpicProgressItem.java    ← {issueId, progress, childCount, columnValues{key→Object}}`
+`│   │   │   ├── WidgetConfigDto.java     ← {id, type, title, cols, order, structureId, columnKeys[], options{}}`
+`│   │   │   ├── DashboardLayoutDto.java  ← {id, name, ownerKey, widgets[]}`
+`│   │   │   └── ApiError.java            ← {status, message}`
+`│   │   ├── service/`
+`│   │   │   └── StructureApiService.java ← вся работа с Structure REST API (Apache HttpClient)`
+`│   │   ├── rest/`
+`│   │   │   └── DashboardResource.java   ← JAX-RS /rest/structuredash/1.0/...`
+`│   │   └── servlet/`
+`│   │       └── DashboardServlet.java    ← рендерит dashboard.vm, проверяет auth`
+`│   └── resources/`
+`│       ├── atlassian-plugin.xml         ← дескриптор: servlet, rest, web-resource, web-item, ao, i18n`
+`│       ├── templates/dashboard.vm       ← HTML-оболочка SPA`
+`│       ├── js/`
+`│       │   ├── echarts.min.js           ← ECharts 5.4.3 (из npm)`
+`│       │   ├── sortable.min.js          ← Sortable.js 1.15.0 (из npm)`
+`│       │   └── dashboard.js             ← SPA: рендер виджетов, API, drag&drop, layout`
+`│       ├── css/dashboard.css            ← стили (ADS цвета, 12-col grid, виджеты, модалка)`
+`│       └── i18n/structure-dashboard.properties`
 
 ## Structure REST API — как используется
 
 ```
 GET  /rest/structure/2.0/structure/
-     → список структур пользователя
-
-GET  /rest/structure/2.0/forest/latest?structureId={id}&expand=items
-     → [{item:"issue:123", depth:0, childCount:3}, ...]
-
-POST /rest/structure/2.0/forest/value
-     body: { structureId, rows:[{item:"issue:123"},...], columns:[{key:"progress"},...] }
-     → { values:[{ row:"issue:123", columns:{ progress:{v:63}, story_points:{v:8} } },...] }
 ```
+
+`     → список структур пользователя`
+`GET  /rest/structure/2.0/forest/latest?structureId={id}&expand=items`
+`     → [{item:"issue:123", depth:0, childCount:3}, ...]`
+`POST /rest/structure/2.0/forest/value`
+`     body: { structureId, rows:[{item:"issue:123"},...], columns:[{key:"progress"},...] }`
+`     → { values:[{ row:"issue:123", columns:{ progress:{v:63}, story_points:{v:8} } },...] }`
 
 Аутентификация: **cookie-based** — сессионные куки Jira передаются из HttpServletRequest.
 
@@ -83,16 +83,16 @@ POST /rest/structure/2.0/forest/value
 
 ```
 GET  /rest/structuredash/1.0/structures
-GET  /rest/structuredash/1.0/structure/{id}/aggregates?columns=progress,story_points_sum
-GET  /rest/structuredash/1.0/structure/{id}/epic-progress?columns=progress,story_points
-POST /rest/structuredash/1.0/structure/{id}/column-values   body:{issueIds,columnKeys}
-
-GET    /rest/structuredash/1.0/dashboards
-GET    /rest/structuredash/1.0/dashboards/{dashboardId}
-POST   /rest/structuredash/1.0/dashboards
-PUT    /rest/structuredash/1.0/dashboards/{dashboardId}
-DELETE /rest/structuredash/1.0/dashboards/{dashboardId}
 ```
+
+`GET  /rest/structuredash/1.0/structure/{id}/aggregates?columns=progress,story_points_sum`
+`GET  /rest/structuredash/1.0/structure/{id}/epic-progress?columns=progress,story_points`
+`POST /rest/structuredash/1.0/structure/{id}/column-values   body:{issueIds,columnKeys}`
+`GET    /rest/structuredash/1.0/dashboards`
+`GET    /rest/structuredash/1.0/dashboards/{dashboardId}`
+`POST   /rest/structuredash/1.0/dashboards`
+`PUT    /rest/structuredash/1.0/dashboards/{dashboardId}`
+`DELETE /rest/structuredash/1.0/dashboards/{dashboardId}`
 
 ## Типы виджетов
 
@@ -124,8 +124,9 @@ DELETE /rest/structuredash/1.0/dashboards/{dashboardId}
 
 ```
 https://your-jira/plugins/servlet/structure-dashboard
-https://your-jira/plugins/servlet/structure-dashboard?dashboard={uuid}
 ```
+
+`https://your-jira/plugins/servlet/structure-dashboard?dashboard={uuid}`
 
 ## Установка JAR
 
